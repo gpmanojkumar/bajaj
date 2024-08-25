@@ -1,0 +1,70 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Select from 'react-select';
+
+function App() {
+  const [jsonInput, setJsonInput] = useState('');
+  const [response, setResponse] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const options = [
+    { value: 'alphabets', label: 'Alphabets' },
+    { value: 'numbers', label: 'Numbers' },
+    { value: 'highestLowercase', label: 'Highest lowercase alphabet' },
+  ];
+
+  useEffect(() => {
+    document.title = 'YourRollNumber'; // Replace with your roll number
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const parsedJson = JSON.parse(jsonInput);
+      const res = await axios.post('YOUR_BACKEND_API_URL', parsedJson);
+      setResponse(res.data);
+    } catch (error) {
+      console.error('Invalid JSON or API error', error);
+    }
+  };
+
+  const renderResponse = () => {
+    if (!response) return null;
+
+    const result = [];
+    if (selectedOptions.includes('alphabets')) {
+      result.push(...response.alphabets);
+    }
+    if (selectedOptions.includes('numbers')) {
+      result.push(...response.numbers);
+    }
+    if (selectedOptions.includes('highestLowercase')) {
+      result.push(response.highestLowercase);
+    }
+
+    return <div>{JSON.stringify(result)}</div>;
+  };
+
+  return (
+    <div>
+      <h1>Frontend App</h1>
+      <textarea
+        value={jsonInput}
+        onChange={(e) => setJsonInput(e.target.value)}
+        placeholder="Enter JSON here"
+      />
+      <button onClick={handleSubmit}>Submit</button>
+
+      {response && (
+        <Select
+          options={options}
+          isMulti
+          onChange={(selected) => setSelectedOptions(selected.map(opt => opt.value))}
+        />
+      )}
+
+      {renderResponse()}
+    </div>
+  );
+}
+
+export default App;
